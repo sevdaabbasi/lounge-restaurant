@@ -1,0 +1,35 @@
+# (npm bağımlılıkları)
+node_modules/
+
+# log dosyaları
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# sistem dosyaları
+.DS_Store
+Thumbs.db
+
+# geçici dosyalar
+*.tmp
+*.swp
+*.swo
+
+# build çıktıları
+dist/
+build/
+
+# dotenv dosyaları
+.env
+.env.local
+.env.*.local
+
+# IDE ayarları
+.vscode/
+.idea/
+
+# coverage (test çıktısı)
+coverage/
+
+# OS cache'leri
+*.log
