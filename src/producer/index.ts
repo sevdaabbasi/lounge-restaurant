@@ -1,5 +1,5 @@
 import { Kafka } from "kafkajs";
-import { v4 as uuid4 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 
 const kafka = new Kafka({
   clientId: "comment-producer",
@@ -10,10 +10,11 @@ const producer = kafka.producer();
 const topic = "raw-comments";
 
 const sampleComments = [
-  "Garsonlar çok ilgiliydi.",
   "Fiyatlar biraz pahalı.",
-  "Mekan çok kalabalıktı.",
   "Tatlılar mükemmeldi.",
+  "Lezzetli ama porsiyonlar küçük.",
+  "Kötü bir deneyimdi.",
+  "Ortam çok güzeldi.",
   "Bir daha gelmem.",
 ];
 
@@ -21,15 +22,15 @@ function getRandomComment() {
   const text =
     sampleComments[Math.floor(Math.random() * sampleComments.length)];
   return {
-    commentId: uuid4(),
+    commentId: uuidv4(),
     commentText: text,
     timestamp: new Date().toISOString(),
   };
 }
 
-async function producerComments() {
+async function produceComments() {
   await producer.connect();
-  console.log("Producer connected, Sending comments");
+  console.log("Producer connected. Sending comments...");
 
   while (true) {
     const comment = getRandomComment();
@@ -51,4 +52,4 @@ async function producerComments() {
   }
 }
 
-producerComments().catch(console.error);
+produceComments().catch(console.error);
