@@ -1,0 +1,111 @@
+version: "3.8"
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: lounge_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # REST API Service
+  rest-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/lounge_db
+      - API_PORT=3000
+    depends_on:
+      - postgres
+    volumes:
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+    command: npm run start:api
+
+  # gRPC Service
+  grpc-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.grpc
+    ports:
+      - "50051:50051"
+    volumes:
+      - ./src:/app/src
+    command: npm run start:grpc
+
+  # Producer Service
+  producer:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.producer
+    environment:
+      - KAFKA_BROKERS=kafka:9092
+    depends_on:
+      - kafka
+    volumes:
+      - ./src:/app/src
+    command: npm run start:producer
+
+  # Consumer Service
+  consumer:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.consumer
+    environment:
+      - KAFKA_BROKERS=kafka:9092
+      - DATABASE_URL=postgresql://user:password@postgres:5432/lounge_db
+      - REDIS_URL=redis://redis:6379
+      - GRPC_HOST=grpc-service
+      - GRPC_PORT=50051
+    depends_on:
+      - kafka
+      - postgres
+      - redis
+      - grpc-service
+    volumes:
+      - ./src:/app/src
+    command: npm run start:consumer
+
+volumes:
+  zookeeper_data:
+  kafka_data:
+  postgres_data:
+  redis_data:
