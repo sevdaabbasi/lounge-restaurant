@@ -80,39 +80,6 @@ app.get("/comments", async (req, res) => {
   }
 });
 
-app.get("/comments/:commentId", async (req, res) => {
-  try {
-    const { commentId } = req.params;
-
-    const comment = await prisma.comment.findUnique({
-      where: { commentId },
-      select: {
-        commentId: true,
-        commentText: true,
-        sentiment: true,
-        confidence: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-
-    if (!comment) {
-      return res.status(404).json({
-        error: "Not found",
-        message: "Comment not found",
-      });
-    }
-
-    res.json({ data: comment });
-  } catch (error) {
-    console.error("Error fetching comment:", error);
-    res.status(500).json({
-      error: "Internal server error",
-      message: "Failed to fetch comment",
-    });
-  }
-});
-
 app.get("/comments/stats/sentiment", async (req, res) => {
   try {
     const stats = await prisma.comment.groupBy({
@@ -179,6 +146,39 @@ app.get("/comments/recent", async (req, res) => {
     res.status(500).json({
       error: "Internal server error",
       message: "Failed to fetch recent comments",
+    });
+  }
+});
+
+app.get("/comments/:commentId", async (req, res) => {
+  try {
+    const { commentId } = req.params;
+
+    const comment = await prisma.comment.findUnique({
+      where: { commentId },
+      select: {
+        commentId: true,
+        commentText: true,
+        sentiment: true,
+        confidence: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!comment) {
+      return res.status(404).json({
+        error: "Not found",
+        message: "Comment not found",
+      });
+    }
+
+    res.json({ data: comment });
+  } catch (error) {
+    console.error("Error fetching comment:", error);
+    res.status(500).json({
+      error: "Internal server error",
+      message: "Failed to fetch comment",
     });
   }
 });
