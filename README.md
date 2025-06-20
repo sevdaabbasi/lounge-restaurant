@@ -1,5 +1,12 @@
 # Lounge Restaurant Comments Processing System
 
+
+
+https://github.com/user-attachments/assets/a3ece756-4e0e-4751-b26a-b08320b68d94
+
+
+
+
 This project is a real-time comment processing and sentiment analysis system for Lounge Restaurant. It collects customer comments, analyzes them, and provides meaningful reports to management.
 
 ## How the system works:
