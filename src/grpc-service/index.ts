@@ -45,8 +45,7 @@ class RateLimiter {
 }
 
 const sentimentCache = new Map<string, string>();
-const rateLimiter = new RateLimiter(100, 10); // 100 istek/saniye
-
+const rateLimiter = new RateLimiter(100, 10);
 function analyzeSentiment(text: string): string {
   const lowerText = text.toLowerCase();
   const positiveWords = [
